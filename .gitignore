@@ -1,6 +1,16 @@
-*.class
+# IntelliJ Files
+.idea/
+*.ipr
+*.iws
+*.iml
 
-# Package Files #
-*.jar
-*.war
-*.ear
+# Eclipse Files
+.classpath
+.project
+
+# Build outputs
+target/
+reports/
+
+# OS hidden files
+.DS_Store
