@@ -62,8 +62,8 @@ class AssetServlet extends HttpServlet {
             }
 
             // Check the modification time...
-            String ifModifiedSince = req.getHeader(HttpHeaders.IF_MODIFIED_SINCE);
-            if (ifModifiedSince != null && Long.parseLong(ifModifiedSince) >= asset.getLastModifiedTime()) {
+            long ifModifiedSince = req.getDateHeader(HttpHeaders.IF_MODIFIED_SINCE);
+            if (ifModifiedSince >= asset.getLastModifiedTime()) {
                 res.sendError(HttpServletResponse.SC_NOT_MODIFIED);
                 return;
             }
