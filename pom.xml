@@ -3,6 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>com.bazaarvoice.commons</groupId>
+    <artifactId>bv-opensource-super-pom</artifactId>
+    <version>1.0</version>
+  </parent>
+
   <groupId>com.bazaarvoice.dropwizard</groupId>
   <artifactId>dropwizard-configurable-assets-bundle</artifactId>
   <version>0.1.0-SNAPSHOT</version>
