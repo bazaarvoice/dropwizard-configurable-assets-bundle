@@ -1,43 +1,31 @@
 package com.bazaarvoice.dropwizard.assets;
 
+import com.google.common.collect.Lists;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.eclipse.jetty.http.MimeTypes;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
 
 public class AssetsConfiguration {
     @NotNull
     @JsonProperty
-    private String uriPath = com.yammer.dropwizard.bundles.AssetsBundle.DEFAULT_PATH;
-
-    @NotNull
-    @JsonProperty
-    private String defaultContentType = MimeTypes.TEXT_HTML;
-
-    @NotNull
-    @JsonProperty
     private String cacheSpec = com.yammer.dropwizard.bundles.AssetsBundle.DEFAULT_CACHE_SPEC.toParsableString();
 
+    @NotNull
     @JsonProperty
-    private String filePath = null;
-
-    /** The prefix on all URI paths for static assets. */
-    public String getUriPath() {
-        return uriPath;
-    }
-
-    /** The default content type to use for assets that have an unrecognized extension. */
-    public String getDefaultContentType() {
-        return defaultContentType;
-    }
+    private List<Map<String, String>> overrides = Lists.newArrayList();
 
     /** The caching specification for how to memoize assets. */
     public String getCacheSpec() {
         return cacheSpec;
     }
 
-    /** The base path in the filesystem to load assets from. */
-    public String getFilePath() {
-        return filePath;
+    public Iterable<Map.Entry<String, String>> getOverrides() {
+        List<Map.Entry<String, String>> entries = Lists.newArrayList();
+        for (Map<String, String> map : overrides) {
+            entries.addAll(map.entrySet());
+        }
+        return entries;
     }
 }
