@@ -166,8 +166,6 @@ class AssetServlet extends HttpServlet {
         }
 
         private Asset loadOverride(String key) throws Exception {
-            // TODO: This is ugly, clean it up
-            // TODO: Support directory queries (using indexFilename)
             // TODO: Support prefix matches only for directories
             for (Map.Entry<String, String> override : overrides) {
                 File file = null;
