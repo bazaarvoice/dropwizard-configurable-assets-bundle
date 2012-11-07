@@ -16,9 +16,6 @@ import static com.google.common.base.Preconditions.checkArgument;
  * to allow assets to be loaded directly out of source directories instead of the classpath and to force them to not be
  * cached by the browser or the server.  This allows developers to edit an asset, save and then immediately refresh the
  * web browser and see the updated assets.  No compilation or copy steps are necessary.
- * <p/>
- * In order to take advantage TODO: finish me
- * <p/>
  */
 public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConfiguration> {
     private static final String DEFAULT_PATH = AssetsBundle.DEFAULT_PATH;
