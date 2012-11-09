@@ -96,7 +96,7 @@ class AssetServlet extends HttpServlet {
             }
 
             resp.setDateHeader(HttpHeaders.LAST_MODIFIED, asset.getLastModifiedTime());
-            resp.setHeader(HttpHeaders.ETAG, '"' + asset.getETag() + '"');
+            resp.setHeader(HttpHeaders.ETAG, asset.getETag());
 
             Buffer mimeType = mimeTypes.getMimeByExtension(req.getRequestURI());
             if (mimeType == null) {
@@ -253,7 +253,7 @@ class AssetServlet extends HttpServlet {
                 String newETag = Hashing.murmur3_128().hashBytes(newBytes).toString();
 
                 bytes = newBytes;
-                eTag = newETag;
+                eTag = '"' + newETag + '"';
                 lastModifiedTime = file.lastModified();
             } catch (IOException e) {
                 // Ignored, don't update anything
