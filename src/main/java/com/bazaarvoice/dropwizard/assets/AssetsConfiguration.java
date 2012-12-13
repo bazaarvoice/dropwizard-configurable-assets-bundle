@@ -1,10 +1,9 @@
 package com.bazaarvoice.dropwizard.assets;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Map;
 
 public class AssetsConfiguration {
@@ -14,7 +13,7 @@ public class AssetsConfiguration {
 
     @NotNull
     @JsonProperty
-    private List<Map<String, String>> overrides = Lists.newArrayList();
+    private Map<String, String> overrides = Maps.newHashMap();
 
     /** The caching specification for how to memoize assets. */
     public String getCacheSpec() {
@@ -22,10 +21,6 @@ public class AssetsConfiguration {
     }
 
     public Iterable<Map.Entry<String, String>> getOverrides() {
-        List<Map.Entry<String, String>> entries = Lists.newArrayList();
-        for (Map<String, String> map : overrides) {
-            entries.addAll(map.entrySet());
-        }
-        return entries;
+        return overrides.entrySet();
     }
 }
