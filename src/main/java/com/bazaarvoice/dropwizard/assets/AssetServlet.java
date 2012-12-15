@@ -1,5 +1,6 @@
 package com.bazaarvoice.dropwizard.assets;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
@@ -10,7 +11,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import com.google.common.net.HttpHeaders;
-import com.yammer.dropwizard.util.ResourceURL;
+import com.yammer.dropwizard.assets.ResourceURL;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.Buffer;
 
@@ -26,9 +27,9 @@ import java.util.Map;
 
 /**
  * Servlet responsible for serving assets to the caller.  This is basically completely stolen from
- * {@link com.yammer.dropwizard.servlets.AssetServlet} with the exception of allowing for override options.
+ * {@link com.yammer.dropwizard.assets.AssetServlet} with the exception of allowing for override options.
  *
- * @see com.yammer.dropwizard.servlets.AssetServlet
+ * @see com.yammer.dropwizard.assets.AssetServlet
  */
 class AssetServlet extends HttpServlet {
     private static final long serialVersionUID = 6393345594784987908L;
@@ -46,16 +47,16 @@ class AssetServlet extends HttpServlet {
      * is requested and {@code indexFile} is defined, then {@code AssetServlet} will attempt to serve a file with that
      * name in that directory. If a directory is requested and {@code indexFile} is null, it will serve a 404.
      *
-     * @param resourceURL the base URL from which assets are loaded
-     * @param spec        specification for the underlying cache
-     * @param uriPath     the URI path fragment in which all requests are rooted
-     * @param indexFile   the filename to use when directories are requested, or null to serve no indexes
-     * @param overrides   the path overrides
+     * @param resourcePath the base URL from which assets are loaded
+     * @param spec         specification for the underlying cache
+     * @param uriPath      the URI path fragment in which all requests are rooted
+     * @param indexFile    the filename to use when directories are requested, or null to serve no indexes
+     * @param overrides    the path overrides
      * @see CacheBuilderSpec
      */
-    public AssetServlet(URL resourceURL, CacheBuilderSpec spec, String uriPath, String indexFile,
+    public AssetServlet(String resourcePath, CacheBuilderSpec spec, String uriPath, String indexFile,
                         Iterable<Map.Entry<String, String>> overrides) {
-        AssetLoader loader = new AssetLoader(resourceURL, uriPath, indexFile, overrides);
+        AssetLoader loader = new AssetLoader(resourcePath, uriPath, indexFile, overrides);
         this.cache = CacheBuilder.from(spec).weigher(new AssetSizeWeigher()).build(loader);
         this.mimeTypes = new MimeTypes();
     }
@@ -64,13 +65,13 @@ class AssetServlet extends HttpServlet {
      * Creates a new {@code AssetServlet}. This is provided for backwards-compatibility; see
      * {@link AssetServlet(URL, CacheBuilderSpec, String, String)} for details.
      *
-     * @param resourcePath the path of the directory in which assets are stored, starting with '/'
+     * @param resourcePath the base URL from which assets are loaded
      * @param spec         specification for the underlying cache
      * @param uriPath      the URI path fragment in which all requests are rooted
      */
     public AssetServlet(String resourcePath, CacheBuilderSpec spec, String uriPath,
                         Iterable<Map.Entry<String, String>> overrides) {
-        this(Resources.getResource(resourcePath.substring(1)), spec, uriPath, DEFAULT_INDEX_FILE, overrides);
+        this(resourcePath, spec, uriPath, DEFAULT_INDEX_FILE, overrides);
     }
 
 
@@ -117,18 +118,16 @@ class AssetServlet extends HttpServlet {
     }
 
     private static class AssetLoader extends CacheLoader<String, Asset> {
-        private final URL resourceURL;
+        private final String resourcePath;
         private final String uriPath;
         private final String indexFilename;
         private final Iterable<Map.Entry<String, String>> overrides;
 
-        private AssetLoader(URL resourceURL, String uriPath, String indexFilename, Iterable<Map.Entry<String, String>> overrides) {
-            this.resourceURL = ResourceURL.appendTrailingSlash(resourceURL);
-
-            if (uriPath.endsWith("/")) {
-                uriPath = uriPath.substring(0, uriPath.length() - 1);
-            }
-            this.uriPath = uriPath;
+        private AssetLoader(String resourcePath, String uriPath, String indexFilename, Iterable<Map.Entry<String, String>> overrides) {
+            final String trimmedPath = CharMatcher.is('/').trimFrom(resourcePath);
+            this.resourcePath = trimmedPath.isEmpty() ? trimmedPath : trimmedPath + "/";
+            final String trimmedUri = CharMatcher.is('/').trimTrailingFrom(uriPath);
+            this.uriPath = trimmedUri.length() == 0 ? "/" : trimmedUri;
             this.indexFilename = indexFilename;
             this.overrides = overrides;
         }
@@ -142,12 +141,14 @@ class AssetServlet extends HttpServlet {
                 return asset;
             }
 
-            String requestedResourcePath = key.substring(uriPath.length() + 1);
-            URL requestedResourceURL = ResourceURL.resolveRelativeURL(this.resourceURL, requestedResourcePath);
+            final String requestedResourcePath = CharMatcher.is('/').trimFrom(key.substring(uriPath.length()));
+            final String absoluteRequestedResourcePath = this.resourcePath + requestedResourcePath;
+
+            URL requestedResourceURL = Resources.getResource(absoluteRequestedResourcePath);
+
             if (ResourceURL.isDirectory(requestedResourceURL)) {
                 if (indexFilename != null) {
-                    requestedResourceURL = ResourceURL.resolveRelativeURL(
-                            ResourceURL.appendTrailingSlash(requestedResourceURL), indexFilename);
+                    requestedResourceURL = Resources.getResource(absoluteRequestedResourcePath + '/' + indexFilename);
                 } else {
                     // directory requested but no index file defined
                     return null;

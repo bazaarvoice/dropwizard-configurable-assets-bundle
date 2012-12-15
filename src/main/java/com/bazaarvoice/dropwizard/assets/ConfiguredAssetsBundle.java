@@ -2,24 +2,23 @@ package com.bazaarvoice.dropwizard.assets;
 
 import com.google.common.cache.CacheBuilderSpec;
 import com.yammer.dropwizard.ConfiguredBundle;
-import com.yammer.dropwizard.bundles.AssetsBundle;
+import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 
-import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * An assets bundle (like {@link com.yammer.dropwizard.bundles.AssetsBundle}) that utilizes configuration to provide the
+ * An assets bundle (like {@link com.yammer.dropwizard.assets.AssetsBundle}) that utilizes configuration to provide the
  * ability to override how assets are loaded and cached.  Specifying an override is useful during the development phase
  * to allow assets to be loaded directly out of source directories instead of the classpath and to force them to not be
  * cached by the browser or the server.  This allows developers to edit an asset, save and then immediately refresh the
  * web browser and see the updated assets.  No compilation or copy steps are necessary.
  */
 public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConfiguration> {
-    private static final String DEFAULT_PATH = AssetsBundle.DEFAULT_PATH;
-    private static final CacheBuilderSpec DEFAULT_CACHE_SPEC = AssetsBundle.DEFAULT_CACHE_SPEC;
+    private static final String DEFAULT_PATH = "/assets";
+    protected static final CacheBuilderSpec DEFAULT_CACHE_SPEC = CacheBuilderSpec.parse("maximumSize=100");
 
     private final String resourcePath;
     private final CacheBuilderSpec cacheBuilderSpec;
@@ -94,7 +93,7 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
     }
 
     @Override
-    public void initialize(AssetsBundleConfiguration bundleConfig, Environment env) {
+    public void run(AssetsBundleConfiguration bundleConfig, Environment env) throws Exception {
         AssetsConfiguration config = bundleConfig.getAssetsConfiguration();
 
         // Let the cache spec from the configuration override the one specified in the code
@@ -105,5 +104,9 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
         Iterable<Map.Entry<String, String>> overrides = config.getOverrides();
 
         env.addServlet(new AssetServlet(resourcePath, spec, uriPath, overrides), uriPath + "*");
+    }
+
+    @Override
+    public void initialize(Bootstrap<?> bootstrap) {
     }
 }
