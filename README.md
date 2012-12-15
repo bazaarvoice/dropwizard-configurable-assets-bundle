@@ -12,6 +12,49 @@ to recompile source.
 <dependency>
   <groupId>com.bazaarvoice.dropwizard</groupId>
   <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.8</version>
 </dependency>
+```
+
+## Getting Started
+
+Implement the AssetsBundleConfiguration:
+```java
+public class SampleConfiguration extends Configuration implements AssetsBundleConfiguration {
+  @Valid
+  @NotNull
+  @JsonProperty
+  private final AssetsConfiguration assets = new AssetsConfiguration();
+
+  @Override
+  public AssetsConfiguration getAssetsConfiguration() {
+    return assets;
+  }
+}
+```
+
+Add the redirect bundle:
+```java
+public class SampleService extends Service<...> {
+    public static void main(String[] args) throws Exception {
+        new SampleService().run(args);
+    }
+
+    @Override
+    public void initialize(... bootstrap) {
+        bootstrap.addBundle(new ConfiguredAssetsBundle("/assets/", "/dashboard/"));
+    }
+
+    @Override
+    public void run(... configuration, Environment environment) {
+        ...
+    }
+}
+```
+
+A sample local development config:
+```yml
+assets:
+  overrides:
+    /dashboard: src/main/resources/assets/
 ```
