@@ -1,7 +1,8 @@
 package com.bazaarvoice.dropwizard.assets;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Map;
 public class AssetsConfiguration {
     @NotNull
     @JsonProperty
-    private String cacheSpec = com.yammer.dropwizard.bundles.AssetsBundle.DEFAULT_CACHE_SPEC.toParsableString();
+    private String cacheSpec = ConfiguredAssetsBundle.DEFAULT_CACHE_SPEC.toParsableString();
 
     @NotNull
     @JsonProperty
@@ -21,6 +22,6 @@ public class AssetsConfiguration {
     }
 
     public Iterable<Map.Entry<String, String>> getOverrides() {
-        return overrides.entrySet();
+        return Iterables.unmodifiableIterable(overrides.entrySet());
     }
 }
