@@ -142,7 +142,8 @@ class AssetServlet extends HttpServlet {
             }
 
             final String requestedResourcePath = CharMatcher.is('/').trimFrom(key.substring(uriPath.length()));
-            final String absoluteRequestedResourcePath = this.resourcePath + requestedResourcePath;
+            final String absoluteRequestedResourcePath = CharMatcher.is('/').trimFrom(
+                    this.resourcePath + requestedResourcePath);
 
             URL requestedResourceURL = Resources.getResource(absoluteRequestedResourcePath);
 
