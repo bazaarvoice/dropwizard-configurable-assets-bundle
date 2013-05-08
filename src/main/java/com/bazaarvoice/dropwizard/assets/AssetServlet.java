@@ -1,6 +1,7 @@
 package com.bazaarvoice.dropwizard.assets;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
@@ -11,6 +12,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import com.google.common.net.HttpHeaders;
+import com.google.common.net.MediaType;
 import com.yammer.dropwizard.assets.ResourceURL;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.Buffer;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -33,11 +36,13 @@ import java.util.Map;
  */
 class AssetServlet extends HttpServlet {
     private static final long serialVersionUID = 6393345594784987908L;
-    private static final String DEFAULT_MIME_TYPE = "text/html";
+    private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.HTML_UTF_8;
     private static final String DEFAULT_INDEX_FILE = "index.htm";
 
     private final transient LoadingCache<String, Asset> cache;
     private final transient MimeTypes mimeTypes;
+
+    private Charset defaultCharset = Charsets.UTF_8;
 
     /**
      * Creates a new {@code AssetServlet} that serves static assets loaded from {@code resourceURL} (typically a file:
@@ -74,11 +79,22 @@ class AssetServlet extends HttpServlet {
         this(resourcePath, spec, uriPath, DEFAULT_INDEX_FILE, overrides);
     }
 
+    public void setDefaultCharset(Charset defaultCharset) {
+        this.defaultCharset = defaultCharset;
+    }
+
+    public Charset getDefaultCharset() {
+        return this.defaultCharset;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            Asset asset = cache.getUnchecked(req.getRequestURI());
+            final StringBuilder builder = new StringBuilder(req.getServletPath());
+            if (req.getPathInfo() != null) {
+                builder.append(req.getPathInfo());
+            }
+            Asset asset = cache.getUnchecked(builder.toString());
             if (asset == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
@@ -99,14 +115,26 @@ class AssetServlet extends HttpServlet {
             resp.setDateHeader(HttpHeaders.LAST_MODIFIED, asset.getLastModifiedTime());
             resp.setHeader(HttpHeaders.ETAG, asset.getETag());
 
+            MediaType mediaType = DEFAULT_MEDIA_TYPE;
+
             Buffer mimeType = mimeTypes.getMimeByExtension(req.getRequestURI());
-            if (mimeType == null) {
-                resp.setContentType(DEFAULT_MIME_TYPE);
-            } else {
-                resp.setContentType(mimeType.toString());
+
+            if (mimeType != null) {
+                try {
+                    mediaType = MediaType.parse(mimeType.toString());
+                    if (defaultCharset != null && mediaType.is(MediaType.ANY_TEXT_TYPE)) {
+                        mediaType = mediaType.withCharset(defaultCharset);
+                    }
+                } catch (IllegalArgumentException ignore) {}
             }
 
-            ServletOutputStream output = resp.getOutputStream();
+            resp.setContentType(mediaType.type() + "/" + mediaType.subtype());
+
+            if (mediaType.charset().isPresent()) {
+                resp.setCharacterEncoding(mediaType.charset().get().toString());
+            }
+
+            final ServletOutputStream output = resp.getOutputStream();
             try {
                 output.write(asset.getResource());
             } finally {
