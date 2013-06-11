@@ -57,4 +57,6 @@ A sample local development config:
 assets:
   overrides:
     /dashboard: src/main/resources/assets/
+  mimeTypes:
+    woff: application/font-woff
 ```
