@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 public class AssetsConfiguration {
+    
     @NotNull
     @JsonProperty
     private String cacheSpec = ConfiguredAssetsBundle.DEFAULT_CACHE_SPEC.toParsableString();
@@ -16,7 +17,6 @@ public class AssetsConfiguration {
     @JsonProperty
     private Map<String, String> overrides = Maps.newHashMap();
     
-    @NotNull
     @JsonProperty
     private Map<String, String> mimeTypes = Maps.newHashMap();
 
