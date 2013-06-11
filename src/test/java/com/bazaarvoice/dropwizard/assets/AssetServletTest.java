@@ -17,6 +17,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class AssetServletTest {
     private static final CacheBuilderSpec DEFAULT_CACHE_SPEC = CacheBuilderSpec.parse("maximumSize=100");
     private static final Iterable<Map.Entry<String, String>> EMPTY_OVERRIDES = ImmutableMap.<String, String>builder().build().entrySet();
+    private static final Iterable<Map.Entry<String, String>> EMPTY_MIMETYPES = ImmutableMap.<String, String>builder().build().entrySet();
     private static final String DUMMY_SERVLET = "/dummy_servlet/";
     private static final String NOINDEX_SERVLET = "/noindex_servlet/";
     private static final String NOCHARSET_SERVLET = "/nocharset_servlet/";
@@ -29,7 +30,7 @@ public class AssetServletTest {
         private static final long serialVersionUID = -1L;
 
         public DummyAssetServlet() {
-            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, DUMMY_SERVLET, "index.htm", EMPTY_OVERRIDES);
+            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, DUMMY_SERVLET, "index.htm", EMPTY_OVERRIDES, EMPTY_MIMETYPES);
         }
     }
 
@@ -37,18 +38,18 @@ public class AssetServletTest {
         private static final long serialVersionUID = -1L;
 
         public NoIndexAssetServlet() {
-            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, DUMMY_SERVLET, null, EMPTY_OVERRIDES);
+            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, DUMMY_SERVLET, null, EMPTY_OVERRIDES, EMPTY_MIMETYPES);
         }
     }
     public static class RootAssetServlet extends AssetServlet {
         public RootAssetServlet() {
-            super("/", DEFAULT_CACHE_SPEC, ROOT_SERVLET, null, EMPTY_OVERRIDES);
+            super("/", DEFAULT_CACHE_SPEC, ROOT_SERVLET, null, EMPTY_OVERRIDES, EMPTY_MIMETYPES);
         }
     }
 
     public static class NoCharsetAssetServlet extends AssetServlet {
         public NoCharsetAssetServlet() {
-            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, NOCHARSET_SERVLET, null, EMPTY_OVERRIDES);
+            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, NOCHARSET_SERVLET, null, EMPTY_OVERRIDES, EMPTY_MIMETYPES);
             setDefaultCharset(null);
         }
     }
