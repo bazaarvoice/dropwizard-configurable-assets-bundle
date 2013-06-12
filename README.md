@@ -12,7 +12,7 @@ to recompile source.
 <dependency>
   <groupId>com.bazaarvoice.dropwizard</groupId>
   <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-  <version>0.1.10</version>
+  <version>0.1.11</version>
 </dependency>
 ```
 
