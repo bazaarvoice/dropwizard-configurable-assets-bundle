@@ -64,9 +64,7 @@ class AssetServlet extends HttpServlet {
         AssetLoader loader = new AssetLoader(resourcePath, uriPath, indexFile, overrides);
         this.cache = CacheBuilder.from(spec).weigher(new AssetSizeWeigher()).build(loader);
         this.mimeTypes = new MimeTypes();
-        for (Map.Entry<String, String> mime : mimeTypes) {
-            this.mimeTypes.addMimeMapping(mime.getKey(), mime.getValue());
-        }
+        this.setMimeTypes(mimeTypes);
     }
 
     /**
@@ -80,6 +78,16 @@ class AssetServlet extends HttpServlet {
     public AssetServlet(String resourcePath, CacheBuilderSpec spec, String uriPath,
                         Iterable<Map.Entry<String, String>> overrides, Iterable<Map.Entry<String, String>> mimes) {
         this(resourcePath, spec, uriPath, DEFAULT_INDEX_FILE, overrides, mimes);
+    }
+
+    public void setMimeTypes(Iterable<Map.Entry<String, String>> mimeTypes) {
+        for (Map.Entry<String, String> mime : mimeTypes) {
+            this.mimeTypes.addMimeMapping(mime.getKey(), mime.getValue());
+        }
+    }
+    
+    public MimeTypes getMimeTypes() {
+        return mimeTypes;
     }
 
     public void setDefaultCharset(Charset defaultCharset) {
