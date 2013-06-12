@@ -3,6 +3,7 @@ package com.bazaarvoice.dropwizard.assets;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
+import java.util.HashMap;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
@@ -17,9 +18,11 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class AssetServletTest {
     private static final CacheBuilderSpec DEFAULT_CACHE_SPEC = CacheBuilderSpec.parse("maximumSize=100");
     private static final Iterable<Map.Entry<String, String>> EMPTY_OVERRIDES = ImmutableMap.<String, String>builder().build().entrySet();
+    private static final Iterable<Map.Entry<String, String>> EMPTY_MIMETYPES = ImmutableMap.<String, String>builder().build().entrySet();
     private static final String DUMMY_SERVLET = "/dummy_servlet/";
     private static final String NOINDEX_SERVLET = "/noindex_servlet/";
     private static final String NOCHARSET_SERVLET = "/nocharset_servlet/";
+    private static final String MIME_SERVLET = "/mime_servlet/";
     private static final String ROOT_SERVLET = "/";
     private static final String RESOURCE_PATH = "/assets";
 
@@ -29,7 +32,7 @@ public class AssetServletTest {
         private static final long serialVersionUID = -1L;
 
         public DummyAssetServlet() {
-            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, DUMMY_SERVLET, "index.htm", EMPTY_OVERRIDES);
+            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, DUMMY_SERVLET, "index.htm", EMPTY_OVERRIDES, EMPTY_MIMETYPES);
         }
     }
 
@@ -37,19 +40,30 @@ public class AssetServletTest {
         private static final long serialVersionUID = -1L;
 
         public NoIndexAssetServlet() {
-            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, DUMMY_SERVLET, null, EMPTY_OVERRIDES);
+            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, DUMMY_SERVLET, null, EMPTY_OVERRIDES, EMPTY_MIMETYPES);
         }
     }
+    
     public static class RootAssetServlet extends AssetServlet {
         public RootAssetServlet() {
-            super("/", DEFAULT_CACHE_SPEC, ROOT_SERVLET, null, EMPTY_OVERRIDES);
+            super("/", DEFAULT_CACHE_SPEC, ROOT_SERVLET, null, EMPTY_OVERRIDES, EMPTY_MIMETYPES);
         }
     }
 
     public static class NoCharsetAssetServlet extends AssetServlet {
         public NoCharsetAssetServlet() {
-            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, NOCHARSET_SERVLET, null, EMPTY_OVERRIDES);
+            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, NOCHARSET_SERVLET, null, EMPTY_OVERRIDES, EMPTY_MIMETYPES);
             setDefaultCharset(null);
+        }
+    }
+
+    public static class MimeMappingsServlet extends AssetServlet {
+        public MimeMappingsServlet() {
+            super(RESOURCE_PATH, DEFAULT_CACHE_SPEC, MIME_SERVLET, null, EMPTY_OVERRIDES, EMPTY_MIMETYPES);
+            setDefaultCharset(null);
+            Map<String, String> mimeMappings = new HashMap<String, String>();
+            mimeMappings.put("bar", "application/bar");
+            setMimeTypes(mimeMappings.entrySet());
         }
     }
 
@@ -63,6 +77,7 @@ public class AssetServletTest {
         servletTester.addServlet(NoIndexAssetServlet.class, NOINDEX_SERVLET + '*');
         servletTester.addServlet(NoCharsetAssetServlet.class, NOCHARSET_SERVLET + '*');
         servletTester.addServlet(RootAssetServlet.class, ROOT_SERVLET + '*');
+        servletTester.addServlet(MimeMappingsServlet.class, MIME_SERVLET + '*');
         servletTester.start();
 
         request.setMethod("GET");
@@ -304,5 +319,15 @@ public class AssetServletTest {
         response.parse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
+    }
+    
+    @Test
+    public void addMimeMappings() throws Exception {
+        request.setURI(MIME_SERVLET + "foo.bar");
+        response.parse(servletTester.getResponses(request.generate()));
+        assertThat(response.getStatus())
+                .isEqualTo(200);
+        assertThat(response.getContentType())
+                .isEqualTo("application/bar");
     }
 }

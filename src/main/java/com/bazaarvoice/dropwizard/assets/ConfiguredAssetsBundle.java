@@ -120,8 +120,9 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
                 : cacheBuilderSpec;
 
         Iterable<Map.Entry<String, String>> overrides = config.getOverrides();
+        Iterable<Map.Entry<String, String>> mimeTypes = config.getMimeTypes();
 
-        env.addServlet(new AssetServlet(resourcePath, spec, uriPath, indexFile, overrides), uriPath + "*");
+        env.addServlet(new AssetServlet(resourcePath, spec, uriPath, indexFile, overrides, mimeTypes), uriPath + "*");
     }
 
     @Override
