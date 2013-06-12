@@ -10,7 +10,7 @@
 
   <groupId>com.bazaarvoice.dropwizard</groupId>
   <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-  <version>0.1.11</version>
+  <version>0.1.12-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Dropwizard Configurable Asset Bundle</name>
