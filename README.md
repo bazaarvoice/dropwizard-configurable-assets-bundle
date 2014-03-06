@@ -6,13 +6,15 @@ in their Dropwizard applications and take advantage of the ability to specify re
 disk instead of the classpath.  This allows developers to edit browser-interpreted files and reload them without needing
 to recompile source.
 
+This version is compatible with dropwizard 0.7.0-rc2.
+
 ## Maven Setup
 
 ```xml
 <dependency>
   <groupId>com.bazaarvoice.dropwizard</groupId>
   <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-  <version>0.1.11</version>
+  <version>0.2.0-rc1</version>
 </dependency>
 ```
 
@@ -35,18 +37,18 @@ public class SampleConfiguration extends Configuration implements AssetsBundleCo
 
 Add the redirect bundle:
 ```java
-public class SampleService extends Service<...> {
+public class SampleService extends Application<SampleConfiguration> {
     public static void main(String[] args) throws Exception {
         new SampleService().run(args);
     }
 
     @Override
-    public void initialize(... bootstrap) {
+    public void initialize(Bootstrap<SampleConfiguration> bootstrap) {
         bootstrap.addBundle(new ConfiguredAssetsBundle("/assets/", "/dashboard/"));
     }
 
     @Override
-    public void run(... configuration, Environment environment) {
+    public void run(SampleConfiguration configuration, Environment environment) {
         ...
     }
 }
