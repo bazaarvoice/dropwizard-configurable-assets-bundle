@@ -13,9 +13,8 @@ import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import com.google.common.net.HttpHeaders;
 import com.google.common.net.MediaType;
-import com.yammer.dropwizard.assets.ResourceURL;
+import io.dropwizard.servlets.assets.ResourceURL;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.io.Buffer;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -30,9 +29,9 @@ import java.util.Map;
 
 /**
  * Servlet responsible for serving assets to the caller.  This is basically completely stolen from
- * {@link com.yammer.dropwizard.assets.AssetServlet} with the exception of allowing for override options.
+ * {@link io.dropwizard.servlets.assets.AssetServlet} with the exception of allowing for override options.
  *
- * @see com.yammer.dropwizard.assets.AssetServlet
+ * @see io.dropwizard.servlets.assets.AssetServlet
  */
 class AssetServlet extends HttpServlet {
     private static final long serialVersionUID = 6393345594784987908L;
@@ -127,12 +126,11 @@ class AssetServlet extends HttpServlet {
             resp.setHeader(HttpHeaders.ETAG, asset.getETag());
 
             MediaType mediaType = DEFAULT_MEDIA_TYPE;
-
-            Buffer mimeType = mimeTypes.getMimeByExtension(req.getRequestURI());
+            String mimeType = mimeTypes.getMimeByExtension(req.getRequestURI());
 
             if (mimeType != null) {
                 try {
-                    mediaType = MediaType.parse(mimeType.toString());
+                    mediaType = MediaType.parse(mimeType);
                     if (defaultCharset != null && mediaType.is(MediaType.ANY_TEXT_TYPE)) {
                         mediaType = mediaType.withCharset(defaultCharset);
                     }

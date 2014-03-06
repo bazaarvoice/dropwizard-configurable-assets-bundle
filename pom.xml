@@ -27,7 +27,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <jetty.version>8.1.10.v20130312</jetty.version>
+    <jetty.version>9.0.7.v20131107</jetty.version>
   </properties>
 
   <dependencies>
@@ -38,21 +38,19 @@
     </dependency>
 
     <dependency>
-      <groupId>com.yammer.dropwizard</groupId>
+      <groupId>io.dropwizard</groupId>
       <artifactId>dropwizard-core</artifactId>
-      <version>0.6.2</version>
+      <version>0.7.0-rc2</version>
+    </dependency>
+    <dependency>
+      <groupId>io.dropwizard</groupId>
+      <artifactId>dropwizard-servlets</artifactId>
+      <version>0.7.0-rc2</version>
     </dependency>
 
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
-      <version>${jetty.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>test-jetty-servlet</artifactId>
       <version>${jetty.version}</version>
       <scope>test</scope>
     </dependency>

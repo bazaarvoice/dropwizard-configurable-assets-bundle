@@ -4,9 +4,11 @@ import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.util.HashMap;
+
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpTester;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.testing.HttpTester;
-import org.eclipse.jetty.testing.ServletTester;
+import org.eclipse.jetty.servlet.ServletTester;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,8 +70,8 @@ public class AssetServletTest {
     }
 
     private final ServletTester servletTester = new ServletTester();
-    private final HttpTester request = new HttpTester();
-    private final HttpTester response = new HttpTester();
+    private HttpTester.Request request;
+    private HttpTester.Response response;
 
     @Before
     public void setup() throws Exception {
@@ -80,6 +82,7 @@ public class AssetServletTest {
         servletTester.addServlet(MimeMappingsServlet.class, MIME_SERVLET + '*');
         servletTester.start();
 
+        request = HttpTester.newRequest();
         request.setMethod("GET");
         request.setURI(DUMMY_SERVLET + "example.txt");
         request.setVersion("HTTP/1.0");
@@ -93,7 +96,7 @@ public class AssetServletTest {
     @Test
     public void servesFilesMappedToRoot() throws Exception {
         request.setURI(ROOT_SERVLET + "assets/example.txt");
-        response.parse(servletTester.getResponses(request.generate()));
+        response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
         assertThat(response.getContent())
@@ -103,14 +106,14 @@ public class AssetServletTest {
     @Test
     public void servesCharset() throws Exception {
         request.setURI(DUMMY_SERVLET + "example.txt");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
         assertThat(response.getContentType())
                 .isEqualTo(MimeTypes.TEXT_PLAIN_UTF_8);
 
         request.setURI(NOCHARSET_SERVLET + "example.txt");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
         assertThat(response.getContentType())
@@ -120,7 +123,7 @@ public class AssetServletTest {
     @Test
     public void servesFilesFromRootsWithSameName() throws Exception {
         request.setURI( DUMMY_SERVLET+"example2.txt" );
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
         assertThat(response.getContent())
@@ -129,7 +132,7 @@ public class AssetServletTest {
 
     @Test
     public void servesFilesWithA200() throws Exception {
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
         assertThat(response.getContent())
@@ -140,17 +143,17 @@ public class AssetServletTest {
     public void throws404IfTheAssetIsMissing() throws Exception {
         request.setURI(DUMMY_SERVLET + "doesnotexist.txt");
 
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(404);
     }
 
     @Test
     public void consistentlyAssignsETags() throws Exception {
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final String firstEtag = response.getHeader(HttpHeaders.ETAG);
 
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final String secondEtag = response.getHeader(HttpHeaders.ETAG);
 
         assertThat(firstEtag)
@@ -163,11 +166,11 @@ public class AssetServletTest {
 
     @Test
     public void assignsDifferentETagsForDifferentFiles() throws Exception {
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final String firstEtag = response.getHeader(HttpHeaders.ETAG);
 
         request.setURI(DUMMY_SERVLET + "foo.bar");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final String secondEtag = response.getHeader(HttpHeaders.ETAG);
 
         assertThat(firstEtag)
@@ -176,15 +179,15 @@ public class AssetServletTest {
 
     @Test
     public void supportsIfNoneMatchRequests() throws Exception {
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final String correctEtag = response.getHeader(HttpHeaders.ETAG);
 
         request.setHeader(HttpHeaders.IF_NONE_MATCH, correctEtag);
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final int statusWithMatchingEtag = response.getStatus();
 
         request.setHeader(HttpHeaders.IF_NONE_MATCH, correctEtag + "FOO");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final int statusWithNonMatchingEtag = response.getStatus();
 
         assertThat(statusWithMatchingEtag)
@@ -195,10 +198,10 @@ public class AssetServletTest {
 
     @Test
     public void consistentlyAssignsLastModifiedTimes() throws Exception {
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final long firstLastModifiedTime = response.getDateHeader(HttpHeaders.LAST_MODIFIED);
 
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final long secondLastModifiedTime = response.getDateHeader(HttpHeaders.LAST_MODIFIED);
 
         assertThat(firstLastModifiedTime)
@@ -207,19 +210,19 @@ public class AssetServletTest {
 
     @Test
     public void supportsIfModifiedSinceRequests() throws Exception {
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final long lastModifiedTime = response.getDateHeader(HttpHeaders.LAST_MODIFIED);
 
         request.setDateHeader(HttpHeaders.IF_MODIFIED_SINCE, lastModifiedTime);
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final int statusWithMatchingLastModifiedTime = response.getStatus();
 
         request.setDateHeader(HttpHeaders.IF_MODIFIED_SINCE, lastModifiedTime - 100);
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final int statusWithStaleLastModifiedTime = response.getStatus();
 
         request.setDateHeader(HttpHeaders.IF_MODIFIED_SINCE, lastModifiedTime + 100);
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final int statusWithRecentLastModifiedTime = response.getStatus();
 
         assertThat(statusWithMatchingLastModifiedTime)
@@ -232,20 +235,20 @@ public class AssetServletTest {
 
     @Test
     public void guessesMimeTypes() throws Exception {
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
-        assertThat(response.getContentType())
+        assertThat(response.getStringField(HttpHeader.CONTENT_TYPE))
                 .isEqualTo(MimeTypes.TEXT_PLAIN_UTF_8);
     }
 
     @Test
     public void defaultsToHtml() throws Exception {
         request.setURI(DUMMY_SERVLET + "foo.bar");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
-        assertThat(response.getContentType())
+        assertThat(response.getStringField(HttpHeader.CONTENT_TYPE))
                 .isEqualTo(MimeTypes.TEXT_HTML_UTF_8);
     }
 
@@ -253,7 +256,7 @@ public class AssetServletTest {
     public void servesIndexFilesByDefault() throws Exception {
         // Root directory listing:
         request.setURI(DUMMY_SERVLET);
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
         assertThat(response.getContent())
@@ -261,7 +264,7 @@ public class AssetServletTest {
 
         // Subdirectory listing:
         request.setURI(DUMMY_SERVLET + "some_directory");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
         assertThat(response.getContent())
@@ -269,7 +272,7 @@ public class AssetServletTest {
 
         // Subdirectory listing with slash:
         request.setURI(DUMMY_SERVLET + "some_directory/");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
         assertThat(response.getContent())
@@ -280,19 +283,19 @@ public class AssetServletTest {
     public void throwsA404IfNoIndexFileIsDefined() throws Exception {
         // Root directory listing:
         request.setURI(NOINDEX_SERVLET + '/');
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(404);
 
         // Subdirectory listing:
         request.setURI(NOINDEX_SERVLET + "some_directory");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(404);
 
         // Subdirectory listing with slash:
         request.setURI(NOINDEX_SERVLET + "some_directory/");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(404);
     }
@@ -300,7 +303,7 @@ public class AssetServletTest {
     @Test
     public void doesNotAllowOverridingUrls() throws Exception {
         request.setURI(DUMMY_SERVLET + "file:/etc/passwd");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(404);
     }
@@ -308,7 +311,7 @@ public class AssetServletTest {
     @Test
     public void doesNotAllowOverridingPaths() throws Exception {
         request.setURI(DUMMY_SERVLET + "/etc/passwd");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(404);
     }
@@ -316,7 +319,7 @@ public class AssetServletTest {
     @Test
     public void allowsEncodedAssetNames() throws Exception {
         request.setURI(DUMMY_SERVLET + "encoded%20example.txt");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
     }
@@ -324,10 +327,10 @@ public class AssetServletTest {
     @Test
     public void addMimeMappings() throws Exception {
         request.setURI(MIME_SERVLET + "foo.bar");
-        response.parse(servletTester.getResponses(request.generate()));
+      response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
-        assertThat(response.getContentType())
+        assertThat(response.getStringField(HttpHeader.CONTENT_TYPE))
                 .isEqualTo("application/bar");
     }
 }

@@ -1,16 +1,16 @@
 package com.bazaarvoice.dropwizard.assets;
 
 import com.google.common.cache.CacheBuilderSpec;
-import com.yammer.dropwizard.ConfiguredBundle;
-import com.yammer.dropwizard.config.Bootstrap;
-import com.yammer.dropwizard.config.Environment;
+import io.dropwizard.ConfiguredBundle;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
 
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * An assets bundle (like {@link com.yammer.dropwizard.assets.AssetsBundle}) that utilizes configuration to provide the
+ * An assets bundle (like {@link io.dropwizard.assets.AssetsBundle}) that utilizes configuration to provide the
  * ability to override how assets are loaded and cached.  Specifying an override is useful during the development phase
  * to allow assets to be loaded directly out of source directories instead of the classpath and to force them to not be
  * cached by the browser or the server.  This allows developers to edit an asset, save and then immediately refresh the
@@ -122,7 +122,8 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
         Iterable<Map.Entry<String, String>> overrides = config.getOverrides();
         Iterable<Map.Entry<String, String>> mimeTypes = config.getMimeTypes();
 
-        env.addServlet(new AssetServlet(resourcePath, spec, uriPath, indexFile, overrides, mimeTypes), uriPath + "*");
+        AssetServlet servlet = new AssetServlet(resourcePath, spec, uriPath, indexFile, overrides, mimeTypes);
+        env.servlets().addServlet("assets", servlet).addMapping(uriPath + "*");
     }
 
     @Override
