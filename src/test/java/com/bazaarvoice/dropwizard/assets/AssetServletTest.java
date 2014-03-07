@@ -109,15 +109,13 @@ public class AssetServletTest {
         response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
-        assertThat(MimeTypes.CACHE.get(response.get(HttpHeader.CONTENT_TYPE)))
-                .isEqualTo(MimeTypes.Type.TEXT_PLAIN_UTF_8);
+        assertThat(MimeTypes.Type.TEXT_PLAIN_UTF_8.is(response.get(HttpHeader.CONTENT_TYPE)));
 
         request.setURI(NOCHARSET_SERVLET + "example.txt");
         response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
-        assertThat(MimeTypes.CACHE.get(response.get(HttpHeader.CONTENT_TYPE)))
-                .isEqualTo(MimeTypes.Type.TEXT_PLAIN);
+        assertThat(MimeTypes.Type.TEXT_PLAIN.is(response.get(HttpHeader.CONTENT_TYPE)));
     }
 
     @Test
@@ -238,8 +236,7 @@ public class AssetServletTest {
         response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
-        assertThat(MimeTypes.CACHE.get(response.get(HttpHeader.CONTENT_TYPE)))
-                .isEqualTo(MimeTypes.Type.TEXT_PLAIN_UTF_8);
+        assertThat(MimeTypes.Type.TEXT_PLAIN_UTF_8.is(response.get(HttpHeader.CONTENT_TYPE)));
     }
 
     @Test
@@ -248,8 +245,7 @@ public class AssetServletTest {
         response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         assertThat(response.getStatus())
                 .isEqualTo(200);
-        assertThat(MimeTypes.CACHE.get(response.get(HttpHeader.CONTENT_TYPE)))
-                .isEqualTo(MimeTypes.Type.TEXT_HTML_UTF_8);
+        assertThat(MimeTypes.Type.TEXT_HTML_UTF_8.is(response.get(HttpHeader.CONTENT_TYPE)));
     }
 
     @Test
