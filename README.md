@@ -62,3 +62,11 @@ assets:
   mimeTypes:
     woff: application/font-woff
 ```
+
+You can override multiple external folders with a single configuration in a following way:
+```yml
+assets:
+  overrides:
+    /dashboard/assets: /some/absolute/path/with/assets/
+    /dashboard/images: /some/different/absolute/path/with/images
+```
