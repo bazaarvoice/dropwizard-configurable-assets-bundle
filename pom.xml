@@ -28,14 +28,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jetty.version>9.0.7.v20131107</jetty.version>
-        <dropwizard.version>0.7.0</dropwizard.version>
+        <dropwizard.version>0.7.1</dropwizard.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>16.0.1</version>
+            <version>17.0</version>
         </dependency>
 
         <dependency>
