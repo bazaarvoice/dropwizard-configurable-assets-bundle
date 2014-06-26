@@ -6,7 +6,7 @@ in their Dropwizard applications and take advantage of the ability to specify re
 disk instead of the classpath.  This allows developers to edit browser-interpreted files and reload them without needing
 to recompile source.
 
-This version is compatible with dropwizard 0.7.0-rc2.
+This version is compatible with dropwizard 0.7.X.
 
 ## Maven Setup
 
@@ -14,7 +14,7 @@ This version is compatible with dropwizard 0.7.0-rc2.
 <dependency>
   <groupId>com.bazaarvoice.dropwizard</groupId>
   <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-  <version>0.2.0-rc1</version>
+  <version>0.2.1</version>
 </dependency>
 ```
 
