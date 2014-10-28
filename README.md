@@ -14,7 +14,7 @@ This version is compatible with dropwizard 0.7.X.
 <dependency>
   <groupId>com.bazaarvoice.dropwizard</groupId>
   <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
 </dependency>
 ```
 
