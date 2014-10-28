@@ -10,7 +10,7 @@
 
     <groupId>com.bazaarvoice.dropwizard</groupId>
     <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.2.2</version>
     <packaging>jar</packaging>
 
     <name>Dropwizard Configurable Asset Bundle</name>
@@ -22,7 +22,8 @@
         <developerConnection>
             scm:git:git@github.com:bazaarvoice/dropwizard-configurable-assets-bundle.git
         </developerConnection>
-    </scm>
+      <tag>dropwizard-configurable-assets-bundle-0.2.2</tag>
+  </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
