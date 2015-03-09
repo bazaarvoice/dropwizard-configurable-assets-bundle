@@ -10,7 +10,7 @@
 
     <groupId>com.bazaarvoice.dropwizard</groupId>
     <artifactId>dropwizard-configurable-assets-bundle</artifactId>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.3.0</version>
     <packaging>jar</packaging>
 
     <name>Dropwizard Configurable Asset Bundle</name>
@@ -28,8 +28,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <jetty.version>9.2.6.v20141205</jetty.version>
-        <dropwizard.version>0.8.0-rc2</dropwizard.version>
+        <dropwizard.version>0.8.0</dropwizard.version>
     </properties>
 
     <dependencies>
