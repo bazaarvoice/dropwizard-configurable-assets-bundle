@@ -43,6 +43,8 @@ class AssetServlet extends HttpServlet {
 
     private Charset defaultCharset = Charsets.UTF_8;
 
+    private String cacheControlHeader = null;
+
     /**
      * Creates a new {@code AssetServlet} that serves static assets loaded from {@code resourceURL} (typically a file:
      * or jar: URL). The assets are served at URIs rooted at {@code uriPath}. For example, given a {@code resourceURL}
@@ -79,12 +81,20 @@ class AssetServlet extends HttpServlet {
         this(resourcePath, spec, uriPath, DEFAULT_INDEX_FILE, overrides, mimes);
     }
 
+    public void setCacheControlHeader(String cacheControlHeader) {
+        this.cacheControlHeader = cacheControlHeader;
+    }
+
+    public String getCacheControlHeader() {
+        return cacheControlHeader;
+    }
+
     public void setMimeTypes(Iterable<Map.Entry<String, String>> mimeTypes) {
         for (Map.Entry<String, String> mime : mimeTypes) {
             this.mimeTypes.addMimeMapping(mime.getKey(), mime.getValue());
         }
     }
-    
+
     public MimeTypes getMimeTypes() {
         return mimeTypes;
     }
@@ -124,6 +134,10 @@ class AssetServlet extends HttpServlet {
 
             resp.setDateHeader(HttpHeaders.LAST_MODIFIED, asset.getLastModifiedTime());
             resp.setHeader(HttpHeaders.ETAG, asset.getETag());
+
+            if (null != getCacheControlHeader()) {
+                resp.setHeader(HttpHeaders.CACHE_CONTROL, getCacheControlHeader());
+            }
 
             MediaType mediaType = DEFAULT_MEDIA_TYPE;
             String mimeType = mimeTypes.getMimeByExtension(req.getRequestURI());
