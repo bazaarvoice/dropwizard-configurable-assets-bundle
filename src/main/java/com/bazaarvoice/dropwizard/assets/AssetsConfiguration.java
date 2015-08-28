@@ -15,10 +15,13 @@ public class AssetsConfiguration {
     @NotNull
     @JsonProperty
     private Map<String, String> overrides = Maps.newHashMap();
-    
+
     @NotNull
     @JsonProperty
     private Map<String, String> mimeTypes = Maps.newHashMap();
+
+    @JsonProperty
+    private String cacheControlHeader = null;
 
     /** The caching specification for how to memoize assets. */
     public String getCacheSpec() {
@@ -31,5 +34,9 @@ public class AssetsConfiguration {
 
     public Iterable<Map.Entry<String, String>> getMimeTypes() {
         return Iterables.unmodifiableIterable(mimeTypes.entrySet());
+    }
+
+    public String getCacheControlHeader() {
+        return cacheControlHeader;
     }
 }
