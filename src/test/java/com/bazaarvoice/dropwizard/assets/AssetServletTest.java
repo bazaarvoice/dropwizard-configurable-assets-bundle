@@ -5,17 +5,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.http.HttpTester;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.servlet.ServletTester;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.jetty.http.HttpTester;
+import org.eclipse.jetty.servlet.ServletTester;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
