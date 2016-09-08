@@ -1,5 +1,9 @@
 # Configurable Assets Bundle for Dropwizard
 
+**NOTE: THIS PROJECT IS DEPRECATED.** This projects is no longer maintained.  It is deprecated for
+[dropwizard-bundles maintained fork](https://github.com/dropwizard-bundles/dropwizard-configurable-assets-bundle).
+Users of this project should update their project dependencies appropriately.
+
 This GitHub repository contains a drop-in replacement for Yammer's `AssetsBundle` class that allows for a better
 developer experience.  Developers can use the `ConfiguredAssetsBundle` class anywhere they would use a `AssetsBundle`
 in their Dropwizard applications and take advantage of the ability to specify redirects for URIs to that loads them from
