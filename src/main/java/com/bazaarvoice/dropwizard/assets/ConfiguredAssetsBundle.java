@@ -144,6 +144,7 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
         Iterable<Map.Entry<String, String>> mimeTypes = config.getMimeTypes();
 
         AssetServlet servlet = new AssetServlet(resourcePath, spec, uriPath, indexFile, overrides, mimeTypes);
+        servlet.setCacheControlHeader(config.getCacheControlHeader());
         env.servlets().addServlet(assetsName, servlet).addMapping(uriPath + "*");
     }
 
