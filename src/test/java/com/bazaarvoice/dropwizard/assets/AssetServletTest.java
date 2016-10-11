@@ -3,17 +3,18 @@ package com.bazaarvoice.dropwizard.assets;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
-import org.eclipse.jetty.http.HttpFields;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.http.HttpTester;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.servlet.ServletTester;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.jetty.http.HttpTester;
+import org.eclipse.jetty.servlet.ServletTester;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -211,15 +212,17 @@ public class AssetServletTest {
         response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final long lastModifiedTime = response.getDateField(HttpHeaders.LAST_MODIFIED);
 
-        request.setHeader(HttpHeaders.IF_MODIFIED_SINCE, HttpFields.formatDate(lastModifiedTime));
+        SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+        
+        request.setHeader(HttpHeaders.IF_MODIFIED_SINCE, format.format(new Date(lastModifiedTime)));
         response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final int statusWithMatchingLastModifiedTime = response.getStatus();
 
-        request.setHeader(HttpHeaders.IF_MODIFIED_SINCE, HttpFields.formatDate(lastModifiedTime - 100));
+        request.setHeader(HttpHeaders.IF_MODIFIED_SINCE, format.format(new Date(lastModifiedTime - 100)));
         response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final int statusWithStaleLastModifiedTime = response.getStatus();
 
-        request.setHeader(HttpHeaders.IF_MODIFIED_SINCE, HttpFields.formatDate(lastModifiedTime + 100));
+        request.setHeader(HttpHeaders.IF_MODIFIED_SINCE, format.format(new Date(lastModifiedTime + 100)));
         response = HttpTester.parseResponse(servletTester.getResponses(request.generate()));
         final int statusWithRecentLastModifiedTime = response.getStatus();
 
